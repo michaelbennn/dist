@@ -20,31 +20,8 @@ function threeNumber(threeNumber:string): Array<string> {
     }
     return numberList
 }
-// 两位数字的模式, flag判断是AB,BA,BC,CC (0,1,2,3)
-function twoNumber(twoNumber:string, flag: number): string {
-    let numberSplit = twoNumber.split("");
-    let firstNumber = parseInt(numberSplit[0])
-    let secondNumber = parseInt(numberSplit[1])
-    if (secondNumber !== firstNumber) {
-        if (flag === 0) {
-            return "AB"
-        } else if (flag === 1) {
-            return "BA"
-        } else {
-            return "BC"
-        } 
-    } else {
-        if (flag === 3) {
-            return "BB"
-        } else if (flag === 4) {
-            return "CC"
-        } else{
-            return "AA"
-        }
-    }
-}
 
-function detectPatterns(dns: string): Set<string> {
+function detectPatterns(dns: string): Set<Array<string>> {
     const patterns: Set<Array<string>> = new Set();
     const patternsList: Array<string> = new Array();
     const name = dns.split('.')[0]
@@ -77,80 +54,67 @@ function detectPatterns(dns: string): Set<string> {
         let threeNumberList = threeNumber(name)
         patternsList.push(...threeNumberList);
 
-    }else if (lengthOfNumber === 4) { //TODO:未完待续
-        let firstTwoNumbers = name.substring(0, 2);
-        let secondTwoNumbers = name.substring(2, 4);
-        if (name) {
-            
+    }else if (lengthOfNumber === 4) {
+        patternsList.push("10K")
+        if (name.startsWith('0') || name.endsWith('0')) {//X0
+            if (parseInt(name[0]) === 0) {
+                patternsList.push("0XXX")
+                if (parseInt(name[1]) === 0) {
+                    patternsList.push("00XX")
+                } else if (parseInt(name[2]) === 0) {
+                    patternsList.push("0X0X")
+                } else if (parseInt(name[3]) === 0) {
+                    patternsList.push("0XX0")
+                }
+            } else if (parseInt(name[3]) === 0) {
+                if (parseInt(name[2]) === 0) {
+                    patternsList.push("XX00")
+                } else if (parseInt(name[1]) === 0){
+                    patternsList.push("X0X0")
+                }
+            }
+        } else { //ABC
+            if (parseInt(name[1]) === parseInt(name[2])) { //ABBB/AAAB/ABBA/ABBC
+                if (parseInt(name[3]) === parseInt(name[2]) && parseInt(name[1]) !== parseInt(name[0])) {
+                    patternsList.push("ABBB")
+                } else if(parseInt(name[0]) === parseInt(name[1]) && parseInt(name[1]) === parseInt(name[0])){
+                    patternsList.push("AAAB")
+                } else if(parseInt(name[0]) === parseInt(name[3]) && parseInt(name[1]) !== parseInt(name[0])){
+                    patternsList.push("ABBA")
+                } else if(parseInt(name[0]) !== parseInt(name[3]) && parseInt(name[1]) !== parseInt(name[0])){
+                    patternsList.push("ABBC")
+                }
+            } else { // AABB/ABAA/AABA/ABAB/AABC/ABCC
+                if (parseInt(name[0]) === parseInt(name[1]) && parseInt(name[2]) === parseInt(name[3])){
+                    patternsList.push("AABB")
+                }else if ((parseInt(name[0]) !== parseInt(name[1])) && parseInt(name[0]) === parseInt(name[3])&& parseInt(name[0]) === parseInt(name[2])){
+                    patternsList.push("ABAA")
+                }else if ((parseInt(name[0]) === parseInt(name[1])) && parseInt(name[0]) === parseInt(name[3])){
+                    patternsList.push("AABA")
+                }else if ((parseInt(name[0]) === parseInt(name[2])) && parseInt(name[1]) === parseInt(name[3])){
+                    patternsList.push("ABAB")
+                }else if ((parseInt(name[0]) === parseInt(name[1])) && parseInt(name[1]) !== parseInt(name[3])&& parseInt(name[2]) !== parseInt(name[3])){
+                    patternsList.push("AABC")
+                }else if ((parseInt(name[0]) !== parseInt(name[1])) && parseInt(name[1]) !== parseInt(name[3])&& parseInt(name[2]) === parseInt(name[3])){
+                    patternsList.push("ABCC")
+                }
+            }
         }
-        let firstTwoNumberString = twoNumber(firstTwoNumbers)
-        let secondTwoNumberString = twoNumber(firstTwoNumbers)
-        if (secondTwoNumberString === "") {
-            
-        }
-
-        
-    }
-    // Pattern 2: ABBA
-    const abbaRegex = /^(\d)(\d)\2\1$/;
-    if (abbaRegex.test(name)) {
-        patterns.add("ABBA");
-    }
-    
-    // Pattern 3: AABC
-    const aabcRegex = /^(\d)\1(\d)(?!\1)(\d)$/;
-    if (aabcRegex.test(name)) {
-        patterns.add("AABC");
+    }else if (lengthOfNumber === 5){
+        patternsList.push("100K")
+        if (parseInt(name[0]) !== parseInt(name[1]) && parseInt(name[1]) === parseInt(name[2])&& parseInt(name[2]) === parseInt(name[3])&& parseInt(name[3]) === parseInt(name[4])) {
+            patternsList.push("ABBBB")
+        } else if (parseInt(name[0]) !== parseInt(name[1]) && parseInt(name[1]) === parseInt(name[2])&& parseInt(name[2]) === parseInt(name[3])&& parseInt(name[3]) === parseInt(name[0])) {
+            patternsList.push("BAAAA")
+        } else if (parseInt(name[0]) !== parseInt(name[1]) && parseInt(name[0]) === parseInt(name[2])&& parseInt(name[2]) === parseInt(name[3])&& parseInt(name[3]) === parseInt(name[4])) {
+            patternsList.push("ABAAA")
+        } else if (parseInt(name[3]) !== parseInt(name[4]) && parseInt(name[1]) === parseInt(name[2])&& parseInt(name[2]) === parseInt(name[3])&& parseInt(name[3]) === parseInt(name[0])) {
+            patternsList.push("AAAAB")
+        } else if (parseInt(name[3]) !== parseInt(name[2]) && parseInt(name[1]) === parseInt(name[3])&& parseInt(name[4]) === parseInt(name[3])&& parseInt(name[3]) === parseInt(name[0])) {
+            patternsList.push("AABAA")
+        } 
     }
     
-    // Pattern 4: ABBC
-    const abbcRegex = /^(\d)(\d)\1(?!\1)(\d)$/;
-    if (abbcRegex.test(name)) {
-        patterns.add("ABBC");
-    }
-    
-    
-    // Pattern 8: 10K
-    const tenKRegex = /^(\d{1,2})\d{3}$/;
-    if (tenKRegex.test(name)) {
-        patterns.add("10K");
-    }
-    
-    // Pattern 9: 100K
-    const hundredKRegex = /^(\d{1,3})\d{3}$/;
-    if (hundredKRegex.test(name)) {
-        patterns.add("100K");
-    }
-    
-    // Pattern 10: XXX000
-    const xxx000Regex = /^(\d{1,3})0{3}$/;
-    if (xxx000Regex.test(name)) {
-        patterns.add("XXX000");
-    }
-    
-    // Pattern 11: 0XXX
-    const zeroXxxRegex = /^0(\d{1,3})$/;
-    if (zeroXxxRegex.test(name)) {
-        patterns.add("0XXX");
-    }
-    
-    // Pattern 12: 00XX
-    const zeroZeroXxRegex = /^00(\d{1,2})$/;
-    if (zeroZeroXxRegex.test(name)) {
-        patterns.add("00XX");
-    }
-    
-    // Pattern 13: 0x10K
-    const hexTenKRegex = /^0x(\d{1,2})\d{3}$/;
-    if (hexTenKRegex.test(name)) {
-        patterns.add("0x10K");
-    }
-    
-    // Pattern 14: MMDD
-    const mmddRegex = /^(\d{2})(\d{2})$/;
-    if (mmddRegex.test(name)) {
-        patterns.add("MMDD");
-    }
     patterns.add(patternsList);
     
     return patterns;
